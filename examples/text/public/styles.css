@@ -1,0 +1,37 @@
+.text-node {
+  padding: 8px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+}
+
+/*Some styles copied from https://jbt.github.io/markdown-editor/:*/
+.code {
+  background-color: rgba(0,0,0,0.04);
+  font-size: 85%;
+  padding: 0.2em 0;
+  margin: 0;
+  border-radius: 3px;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.link {
+  color: #4078c0;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+.quote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}

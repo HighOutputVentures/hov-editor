@@ -1,0 +1,22 @@
+{
+  "name": "neyar",
+  "version": "0.1.0",
+  "description": "A highly modular rich text editor",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "workspaces": [
+    "core"
+  ],
+  "author": "High Output Ventures",
+  "license": "ISC",
+  "devDependencies": {
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.2.165",
+    "@swc/jest": "^0.2.20",
+    "browserify": "^17.0.0",
+    "jest": "^27.5.1",
+    "swcify": "^1.0.1",
+    "typescript": "^4.6.3"
+  }
+}

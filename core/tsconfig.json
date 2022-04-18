@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "outDir": "./dist",
+    "emitDeclarationOnly": true
+  },
+  "include": [
+    "**/*"
+  ],
+  "exclude": ["node_modules/**/*", "dist/**"]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@neyar/core",
+  "version": "0.1.0",
+  "description": "`neyar` core library",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "compile": "swc src/ -d dist/",
+    "build:types": "npm run compile && tsc",
+    "build": "npm run compile"
+  },
+  "author": "High Output Ventures",
+  "license": "ISC"
+}

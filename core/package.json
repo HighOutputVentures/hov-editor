@@ -10,5 +10,10 @@
     "build": "npm run compile"
   },
   "author": "High Output Ventures",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@swc/jest": "^0.2.20",
+    "@types/jest": "^27.4.1",
+    "jest": "^27.5.1"
+  }
 }

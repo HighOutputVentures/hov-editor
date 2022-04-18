@@ -1,62 +1,71 @@
 enum MarkType {
+  TripleAsterisk = "***",
   DoubleAsterisk = "**",
   Asterisk = "*",
+  TripleUnderscore = "___",
   DoubleUnderscore = "__",
   Underscore = "_",
 }
 
 const MarkMap: { [key: string]: string[] } = {
+  [MarkType.TripleAsterisk]: ["<i><b>", "</b></i>"],
   [MarkType.DoubleAsterisk]: ["<b>", "</b>"],
   [MarkType.Asterisk] : ["<i>", "</i>"],
+  [MarkType.TripleUnderscore]: ["<i><b>", "</b></i>"],
   [MarkType.DoubleUnderscore]: ["<b>", "</b>"],
   [MarkType.Underscore] : ["<i>", "</i>"],
 }
 
 export class TextCruncher {
-  private marks: MarkType[] = [];
-
-  private _text: string = '';
+  private chunks: string[] = [];
+  private markIndices: number[] = [];
 
   public reset() {
-    this._text = '';
-    this.marks = [];
+    this.chunks = [];
+    this.markIndices = [];
   }
 
-  private getPrevMarkAndIndex = (): [MarkType, number] =>
-    [this.marks.splice(-1)[0], this.marks.length - 1]
-
   public ingest(c: string) {
-    let marksUpdated = false;
+    let currentChunk = c;
 
-    const [prevMark, prevMarkIndex] = this.getPrevMarkAndIndex();
+    const prevChunk = this.chunks.slice(-1)[0];
 
-    if (prevMark !== undefined) {
-      const prevMarkInput = MarkMap[prevMark];
+    if (prevChunk !== undefined && (prevChunk + currentChunk) in MarkMap) {
+      currentChunk = prevChunk + currentChunk;
 
-      if ((prevMarkInput + c) in MarkMap) {
-        this.marks[prevMarkIndex] = prevMarkInput + c as MarkType;
-        marksUpdated = true;
+      this.chunks[this.chunks.length - 1] = currentChunk;
+
+    } else {
+      this.chunks.push(currentChunk);
+
+      if (currentChunk in MarkMap) {
+        this.markIndices.push(this.chunks.length - 1);
       }
     }
 
-    if (!marksUpdated) {
-      if (c in MarkMap) {
-        this.marks.push(c as MarkType);
-      }
-    }
+    const prevMarkIndex = this.markIndices[this.markIndices.length - 2];
+    const prevMark = prevMarkIndex !== undefined ? this.chunks[prevMarkIndex] : undefined;
 
-    this._text += c;
+    if (prevMark && prevMark === currentChunk) {
+      const [openingTag, closingTag] = MarkMap[currentChunk];
+
+      this.chunks[this.chunks.length - 1] = closingTag;
+      this.chunks[prevMarkIndex] = openingTag;
+      this.markIndices = this.markIndices.slice(0, this.markIndices.length - 2);
+    }
   }
 
   public bulkIngest(s: string) {
-    this.marks = [];
+    this.reset();
 
-    for (const c of s) {
-      this.ingest(c);
+    if (s && s.length > 0) {
+      for (const c of s) {
+        this.ingest(c);
+      }
     }
   }
 
   public get text() {
-    return this._text;
+    return this.chunks.join('');
   }
 }

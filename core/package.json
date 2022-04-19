@@ -10,5 +10,11 @@
     "build": "npm run compile"
   },
   "author": "High Output Ventures",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "assert": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/assert": "^1.5.6"
+  }
 }

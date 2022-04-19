@@ -65,6 +65,20 @@ describe('TextCruncher', () => {
       },
       output: '<i><b>bold <b>bold</b></b></i>'
     },
+    {
+      input: {
+        bulkIngest: '***bold **bold*',
+        ingest: '****x'
+      },
+      output: '<i><b>bold <b>bold</b></b></i>x'
+    },
+    {
+      input: {
+        bulkIngest: '***bold *italic',
+        ingest: '****'
+      },
+      output: '<i><b>bold <i>italic</i></b></i>'
+    },
   ];
 
   for (const { input, output } of cases) {

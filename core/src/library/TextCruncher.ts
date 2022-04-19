@@ -16,57 +16,88 @@ const MarkMap: { [key: string]: string[] } = {
   [MarkType.Underscore] : ["<i>", "</i>"],
 }
 
+type MarkGroup = {
+  mark: MarkType;
+  startIndex: number;
+  length: number;
+}
+
 export class TextCruncher {
   private chunks: string[] = [];
-  private markIndices: number[] = [];
+  private markGroups: MarkGroup[] = [];
 
   public reset() {
     this.chunks = [];
-    this.markIndices = [];
+    this.markGroups = [];
   }
 
   public ingest(c: string) {
-    let currentChunk = c;
+    // Append the current character to the array of "chunks":
+    this.chunks.push(c);
 
-    // Get the previous character if it was a normal character
-    // or something like "_" or "**" if it was a mark in-progress:
-    const prevChunk = this.chunks.slice(-1)[0];
+    // Get the last two "mark groups" if they exists:
+    let [currentMarkGroup, prevMarkGroup] = this.markGroups.slice(-2).reverse();
 
-    // If we were previously typing something like "*"
-    // and what we're currently typing would make it into another valid mark like "**"
-    // then we modify the value in our array from "*" to "**":
-    if (prevChunk !== undefined && (prevChunk + currentChunk) in MarkMap) {
-      currentChunk = prevChunk + currentChunk;
+    // If we were previously typing a mark (e.g. *)
+    // and what we're currently typing would "continue" the mark (e.g. **)
+    // then we update the "endIndex" of the previous "mark group":
+    const shouldUpdateCurrentMarkGroup =
+      currentMarkGroup !== undefined &&
+      currentMarkGroup.startIndex + currentMarkGroup.length + 1 === this.chunks.length &&
+      currentMarkGroup.mark === c;
 
-      this.chunks[this.chunks.length - 1] = currentChunk;
+    if (shouldUpdateCurrentMarkGroup) {
+      this.markGroups[this.markGroups.length - 1].length++;
 
-    // Otherwise, we're starting something new...
+    // Otherwise, we're starting something new:
     } else {
-      // ...so we add that to our array:
-      this.chunks.push(currentChunk);
+      // Check if we're starting on a new mark
+      // and create a new "mark group" if yes:
+      if (c in MarkMap) {
+        const newMarkGroup = {
+          mark: c as MarkType,
+          startIndex: this.chunks.length - 1,
+          length: 1,
+        };
 
-      // Check if we're starting on a new mark and save its index if we are:
-      if (currentChunk in MarkMap) {
-        this.markIndices.push(this.chunks.length - 1);
+        this.markGroups.push(newMarkGroup);
+
+        // Change which "mark groups" are considered
+        // the previous and current:
+        prevMarkGroup = currentMarkGroup;
+        currentMarkGroup = newMarkGroup;
       }
     }
 
-    // Get the previous completed mark if it exists...
-    const prevMarkIndex = this.markIndices[this.markIndices.length - 2];
-    const prevMark = prevMarkIndex !== undefined ? this.chunks[prevMarkIndex] : undefined;
+    // If we have a previous and current "mark group":
+    if (prevMarkGroup && currentMarkGroup) {
+      // Check if they have the same mark (e.g. *) and length:
+      if (
+        prevMarkGroup.mark === currentMarkGroup.mark &&
+        prevMarkGroup.length === currentMarkGroup.length
+      ) {
+        // Get the tags to replace the marks with...
+        const [openingTags, closingTags] = MarkMap[
+          currentMarkGroup.mark.repeat(currentMarkGroup.length)
+        ];
 
-    // ...and check if it matches what we're currently typing:
-    if (prevMark && prevMark === currentChunk) {
-      // If it is, replace that previous mark and what we're currently typing
-      // with the appropriate tags:
-      const [openingTag, closingTag] = MarkMap[currentChunk];
+        // ...then replace the chunks with the relevant tags.
+        this.chunks.splice(
+          prevMarkGroup.startIndex,
+          prevMarkGroup.length,
+          openingTags
+        );
 
-      this.chunks[this.chunks.length - 1] = closingTag;
-      this.chunks[prevMarkIndex] = openingTag;
+        this.chunks.splice(
+          currentMarkGroup.startIndex - prevMarkGroup.length + 1,
+          currentMarkGroup.length,
+          closingTags
+        );
 
-      // As these marks have been replaced, we now
-      // remove the indices as we no longer need them:
-      this.markIndices = this.markIndices.slice(0, this.markIndices.length - 2);
+        // As these marks have been replaced, we now
+        // remove those "mark groups" as we no longer need them:
+        this.markGroups = this.markGroups.slice(0, this.markGroups.length - 2);
+      }
     }
   }
 

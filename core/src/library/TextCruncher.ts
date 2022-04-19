@@ -1,4 +1,3 @@
-/*
 enum MarkType {
   TripleAsterisk,
   DoubleAsterisk,
@@ -9,10 +8,9 @@ type Mark = {
   type: MarkType;
   index: number;
 };
-*/
 
 export class TextCruncher {
-  // private marks: Mark[] = [];
+  private marks: Mark[] = [];
 
   private _text: string = '';
 

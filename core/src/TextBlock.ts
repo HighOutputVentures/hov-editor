@@ -11,17 +11,39 @@ export class TextBlock {
 
     this.elem.innerHTML = this.bulkIngest(data);
 
-    this.elem.addEventListener("input", event => {
-      this.setInnerHTML(this.bulkIngest(this.elem.innerHTML));
-    })
+    this.elem.addEventListener("input", event => this.handleInput(event as InputEvent))
   }
 
-  private setInnerHTML(newHtml = ""): boolean {
-    const oldHtml = this.elem.innerHTML;
+  private handleInput = (event: InputEvent) => {
+    const { data, inputType } = event;
 
-    if (oldHtml !== newHtml) {
+    // Did the user just append characters at the end?
+    if (inputType === "insertText" && data && this.elem.innerText.endsWith(data)) {
+      let newInnerHtml;
+
+      for (const c of data) {
+        // If yes, then we ingest just those characters.
+        newInnerHtml = this.ingest(c);
+      }
+
+      this.setInnerHTML(newInnerHtml);
+
+    // Otherwise, start over and bulk ingest everything.
+    } else {
+      this.setInnerHTML(this.bulkIngest(this.elem.innerHTML));
+    }
+  }
+
+  // Used to update the innerHTML and there is a chance we may need to move the cursor.
+  // Returns "currentHtml !== htmlFromCrusher":
+  private setInnerHTML(htmlFromCrusher = ""): boolean {
+    // Set it now...
+    const currentHtml = this.elem.innerHTML;
+
+    // ...then check if the html the crusher gave us differs from our contenteditable:
+    if (currentHtml !== htmlFromCrusher) {
       const oldText = this.elem.innerText || "";
-      this.elem.innerHTML = newHtml;
+      this.elem.innerHTML = htmlFromCrusher;
       const newText = this.elem.innerText || "";
 
       // TODO The code below is meant to reposition the cursor

@@ -5,6 +5,6 @@
     "build": "npm run compile && npm run bundle"
   },
   "dependencies": {
-    "@neyar/core": "file:../../core"
+    "@neyar/core": "file:../core"
   }
 }

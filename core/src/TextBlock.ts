@@ -22,8 +22,6 @@ export class TextBlock extends Block {
 
     html = html.replace(/\~{2}([^~]+)\~{2}/g, "<del>$1</del>");
 
-    console.log(this.data);
-
     this.elem.innerHTML = html;
   }
 

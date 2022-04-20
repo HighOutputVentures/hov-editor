@@ -6,7 +6,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "workspaces": [
-    "core"
+    "core",
+    "text-example",
+    "editor-example"
   ],
   "author": "High Output Ventures",
   "license": "ISC",

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "compile": "swc src/ -d dist/",
+    "compile": "swc src/ -d dist/ -C exclude='^*+\\.test\\.ts$'",
     "build:types": "npm run compile && tsc",
     "build": "npm run compile"
   },

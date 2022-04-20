@@ -5,9 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "compile": "swc src/ -d dist/ -C exclude='^*+\\.test\\.ts$'",
-    "build:types": "npm run compile && tsc",
-    "build": "npm run compile"
+    "compile": "swc src/ -d dist/",
+    "build": "npm run compile && tsc"
   },
   "author": "High Output Ventures",
   "license": "ISC",

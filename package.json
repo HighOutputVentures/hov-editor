@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "A highly modular rich text editor",
   "scripts": {
-    "test": "jest"
+    "test": "npm test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
   },
   "workspaces": [
     "core",

@@ -22,7 +22,7 @@ type MarkGroup = {
   length: number;
 }
 
-export class TextCruncher {
+export default class TextCruncher {
   private chunks: string[] = [];
   private markGroups: MarkGroup[] = [];
 
@@ -99,9 +99,11 @@ export class TextCruncher {
         this.markGroups = this.markGroups.slice(0, this.markGroups.length - 2);
       }
     }
+
+    return this.text;
   }
 
-  public bulkIngest(s: string) {
+  public bulkIngest(s: string): string {
     this.reset();
 
     if (s && s.length > 0) {
@@ -109,6 +111,8 @@ export class TextCruncher {
         this.ingest(c);
       }
     }
+
+    return this.text;
   }
 
   public get text() {

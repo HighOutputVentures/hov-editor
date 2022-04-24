@@ -23,6 +23,12 @@ export class TextBlock {
   }
 
   private handleInput = (event: InputEvent) => {
+    // If user makes a newline then erases everything,
+    // a stray <br> is left which causes incorrect behavior:
+    if (this.elem.innerHTML === "<br>") {
+      this.elem.innerHTML = "";
+    }
+
     // Reminder: when inputType="insertFromPaste" or "insertParagraph" then data=null.
     let { data, inputType } = event;
 

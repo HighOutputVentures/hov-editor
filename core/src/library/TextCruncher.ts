@@ -25,13 +25,20 @@ type MarkGroup = {
 export default class TextCruncher {
   private chunks: string[] = [];
   private markGroups: MarkGroup[] = [];
+  public hasTrailingBr = false;
 
   public reset() {
     this.chunks = [];
     this.markGroups = [];
+    this.hasTrailingBr = false;
   }
 
-  public ingest(c: string) {
+  public ingest(c: string, wasPrevInputParagraph = false) {
+    // Fix for the "double <br>" issue when user presses "enter":
+    if (wasPrevInputParagraph && this.html.endsWith("<br>")) {
+      this.chunks = this.chunks.slice(0, this.chunks.length - 4);
+    }
+
     // Append the current character to the array of "chunks":
     this.chunks.push(c);
 
@@ -100,7 +107,7 @@ export default class TextCruncher {
       }
     }
 
-    return this.text;
+    return this.html;
   }
 
   public bulkIngest(s: string): string {
@@ -112,10 +119,13 @@ export default class TextCruncher {
       }
     }
 
-    return this.text;
+    if (s.endsWith("<br><br>")) {
+      this.hasTrailingBr = true;
+    }
+    return this.html;
   }
 
-  public get text() {
+  public get html() {
     return this.chunks.join('');
   }
 }

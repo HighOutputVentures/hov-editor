@@ -4,10 +4,15 @@ import applyMixins from "./library/mixins";
 
 export class TextBlock {
   private elem: HTMLDivElement;
+  private previousInputWasParagraph = false;
 
   constructor(data = "") {
     this.elem = document.createElement("div");
     this.elem.contentEditable = "true";
+
+    // (https://stackoverflow.com/a/24689420)
+    // Prevent divs from being added when the user makes a newline:
+    this.elem.style.cssText = "display:inline-block; width:100%;";
 
     this.elem.innerHTML = this.bulkIngest(data);
 
@@ -15,28 +20,44 @@ export class TextBlock {
   }
 
   private handleInput = (event: InputEvent) => {
-    const { data, inputType } = event;
+    // Reminder: when inputType="insertFromPaste" or "insertParagraph" then data=null.
+    let { data, inputType } = event;
+
+    const isInputNewLine =
+      inputType === "insertParagraph" ||
+      inputType === "insertLineBreak" ||
+      (inputType === "insertText" && data === null);
 
     // Did the user just append characters at the end?
-    if (inputType === "insertText" && data && this.elem.innerText.endsWith(data)) {
+    let appendedCharsAtEnd = false;
+    if (!isInputNewLine && data && inputType === "insertText") {
+      // NOTE "innerText" can have a trailing "\n" if you've ever added paragraphs.
+      appendedCharsAtEnd = this.elem.innerText.endsWith(data) || this.elem.innerText.endsWith(`${data}\n`);
+    }
+
+    // If yes, then we ingest just those characters.
+    if (data && appendedCharsAtEnd) {
       let newInnerHtml;
 
       for (const c of data) {
-        // If yes, then we ingest just those characters.
-        newInnerHtml = this.ingest(c);
+        newInnerHtml = this.ingest(c, this.previousInputWasParagraph);
       }
 
-      this.setInnerHTML(newInnerHtml);
+
+      this.setInnerHTMLFromIngest(newInnerHtml);
 
     // Otherwise, start over and bulk ingest everything.
     } else {
-      this.setInnerHTML(this.bulkIngest(this.elem.innerHTML));
+      console.log("BULK:", this.elem.innerHTML); //TODO REMOVE
+      this.setInnerHTMLFromIngest(this.bulkIngest(this.elem.innerHTML));
     }
+
+    this.previousInputWasParagraph = isInputNewLine;
   }
 
   // Used to update the innerHTML and there is a chance we may need to move the cursor.
   // Returns "currentHtml !== htmlFromCrusher":
-  private setInnerHTML(htmlFromCrusher = ""): boolean {
+  private setInnerHTMLFromIngest(htmlFromCrusher = ""): boolean {
     // Set it now...
     const currentHtml = this.elem.innerHTML;
 
@@ -85,11 +106,13 @@ export class TextBlock {
         if (longerText[a+b+c] !== shorterText[a+c]) break;
       }
 
+      const maxI = a + c;
+
       const sel = window.getSelection();
 
       if (sel) {
         sel.extend(this.elem, 0);
-        for (let i = 0; i < (a+c); i++) {
+        for (let i = 0; i < maxI; i++) {
           // @ts-expect-error
           sel.modify("move", "forward", "character");
         }
@@ -97,7 +120,6 @@ export class TextBlock {
 
       return true;
     }
-
     return false;
   }
 
@@ -106,7 +128,7 @@ export class TextBlock {
   }
 
   public serialize(): string {
-    return this.text;
+    return this.html;
   }
 }
 

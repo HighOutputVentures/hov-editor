@@ -5,6 +5,7 @@ import applyMixins from "./library/mixins";
 export class TextBlock {
   private elem: HTMLDivElement;
   private previousInputWasParagraph = false;
+  private previousInnerHtmlLength = 0;
 
   constructor(data = "") {
     this.elem = document.createElement("div");
@@ -15,6 +16,8 @@ export class TextBlock {
     this.elem.style.cssText = "display:inline-block; width:100%;";
 
     this.elem.innerHTML = this.bulkIngest(data);
+
+    this.previousInnerHtmlLength = this.elem.innerHTML.length;
 
     this.elem.addEventListener("input", event => this.handleInput(event as InputEvent))
   }
@@ -28,31 +31,33 @@ export class TextBlock {
       inputType === "insertLineBreak" ||
       (inputType === "insertText" && data === null);
 
-    // Did the user just append characters at the end?
-    let appendedCharsAtEnd = false;
+    // Setting some flags for use later.
+    const newInnerHtmlLength = this.elem.innerHTML.length;
+    const wereCharactersRemoved = newInnerHtmlLength < this.previousInnerHtmlLength;
+
+    let wereCharactersAppended = false;
     if (!isInputNewLine && data && inputType === "insertText") {
       // NOTE "innerText" can have a trailing "\n" if you've ever added paragraphs.
-      appendedCharsAtEnd = this.elem.innerText.endsWith(data) || this.elem.innerText.endsWith(`${data}\n`);
+      wereCharactersAppended = this.elem.innerText.endsWith(data) || this.elem.innerText.endsWith(`${data}\n`);
     }
 
-    // If yes, then we ingest just those characters.
-    if (data && appendedCharsAtEnd) {
+    // If the user added text to the end, then we can just ingest that text:
+    if (!wereCharactersRemoved && data && wereCharactersAppended) {
       let newInnerHtml;
 
       for (const c of data) {
         newInnerHtml = this.ingest(c, this.previousInputWasParagraph);
       }
 
-
       this.setInnerHTMLFromIngest(newInnerHtml);
 
     // Otherwise, start over and bulk ingest everything.
     } else {
-      console.log("BULK:", this.elem.innerHTML); //TODO REMOVE
       this.setInnerHTMLFromIngest(this.bulkIngest(this.elem.innerHTML));
     }
 
     this.previousInputWasParagraph = isInputNewLine;
+    this.previousInnerHtmlLength = newInnerHtmlLength;
   }
 
   // Used to update the innerHTML and there is a chance we may need to move the cursor.

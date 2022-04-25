@@ -1,25 +1,46 @@
+import { EditorBlock } from "./EditorBlock";
 import { Block } from "./Block";
 import TextCruncher from "./library/TextCruncher";
 import applyMixins from "./library/mixins";
 
 export class TextBlock {
+  private parentEditorBlock: EditorBlock;
   private elem: HTMLDivElement;
-  private previousInputWasParagraph = false;
+  private previousInputWasNewLine = false;
   private previousInnerHtmlLength = 0;
 
-  constructor(data = "") {
+  constructor(parentEditorBlock: EditorBlock, data = "", autofocus = false) {
     this.elem = document.createElement("div");
     this.elem.contentEditable = "true";
 
-    // (https://stackoverflow.com/a/24689420)
-    // Prevent divs from being added when the user makes a newline:
-    this.elem.style.cssText = "display:inline-block; width:100%;";
-
     this.elem.innerHTML = this.bulkIngest(data);
+
+    this.parentEditorBlock = parentEditorBlock;
 
     this.previousInnerHtmlLength = this.elem.innerHTML.length;
 
-    this.elem.addEventListener("input", event => this.handleInput(event as InputEvent))
+    if (autofocus) {
+      // "setTimeout" suggested by https://stackoverflow.com/a/37162116
+      // .focus() on its own doesn't seem to work, but adding .click() does.
+      // Also using .click() on its own also doesn't work
+      setTimeout(() => {
+        this.elem.focus();
+        this.elem.click();
+      }, 0);
+    }
+
+    this.elem.addEventListener("input", event => this.handleInput(event as InputEvent));
+    this.elem.addEventListener('beforeinput', event => this.handleBeforeInput(event as InputEvent));
+  }
+
+  private handleBeforeInput = (event: InputEvent) => {
+    const { inputType } = event;
+
+    if (inputType === "insertParagraph" && this.parentEditorBlock) {
+      event.preventDefault();
+
+      this.parentEditorBlock.createBlock("", true);
+    }
   }
 
   private handleInput = (event: InputEvent) => {
@@ -33,9 +54,8 @@ export class TextBlock {
     let { data, inputType } = event;
 
     const isInputNewLine =
-      inputType === "insertParagraph" ||
       inputType === "insertLineBreak" ||
-      (inputType === "insertText" && data === null);
+      (inputType === "insertText" && data === null); // this can happen, but forgot how
 
     // Setting some flags for use later.
     const newInnerHtmlLength = this.elem.innerHTML.length;
@@ -52,7 +72,7 @@ export class TextBlock {
       let newInnerHtml;
 
       for (const c of data) {
-        newInnerHtml = this.ingest(c, this.previousInputWasParagraph);
+        newInnerHtml = this.ingest(c, this.previousInputWasNewLine);
       }
 
       this.setInnerHTMLFromIngest(newInnerHtml);
@@ -62,7 +82,7 @@ export class TextBlock {
       this.setInnerHTMLFromIngest(this.bulkIngest(this.elem.innerHTML));
     }
 
-    this.previousInputWasParagraph = isInputNewLine;
+    this.previousInputWasNewLine = isInputNewLine;
     this.previousInnerHtmlLength = newInnerHtmlLength;
   }
 

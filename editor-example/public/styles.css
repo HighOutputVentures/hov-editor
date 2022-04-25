@@ -1,3 +1,14 @@
+/* Needed to prevent <div> appearing on newline */
+/* See https://stackoverflow.com/a/24689420 */
+div[contenteditable="true"] {
+  display: inline-block;
+  width: 100%;
+}
+
+#editor div[contenteditable="true"]:not(:last-child) {
+  padding-bottom: 8px;
+}
+
 .text-node {
   padding: 8px;
 }

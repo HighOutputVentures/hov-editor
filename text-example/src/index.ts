@@ -6,7 +6,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const editor = document.getElementById('editor');
 
-  const text = new TextBlock(data);
+  const text = new TextBlock(undefined, data);
 
   editor.appendChild(text.getHTMLElement());
 });

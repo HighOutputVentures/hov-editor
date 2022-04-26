@@ -97,7 +97,7 @@ describe('TextCruncher', () => {
         cruncher.ingest(c);
       }
 
-      expect(cruncher.text).toEqual(output);
+      expect(cruncher.html).toEqual(output);
     })
   }
 

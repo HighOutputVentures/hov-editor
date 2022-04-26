@@ -1,42 +1,94 @@
+import { EditorBlock } from "./EditorBlock";
 import { Block } from "./Block";
-import TextCruncher from "./library/TextCruncher";
+import { TextCruncher } from "./library/TextCruncher";
 import applyMixins from "./library/mixins";
 
 export class TextBlock {
+  private parentEditorBlock: EditorBlock;
   private elem: HTMLDivElement;
+  private previousInputWasNewLine = false;
+  private previousInnerHtmlLength = 0;
 
-  constructor(data = "") {
+  constructor(parentEditorBlock: EditorBlock, data = "", autofocus = false) {
     this.elem = document.createElement("div");
     this.elem.contentEditable = "true";
 
     this.elem.innerHTML = this.bulkIngest(data);
 
-    this.elem.addEventListener("input", event => this.handleInput(event as InputEvent))
+    this.parentEditorBlock = parentEditorBlock;
+
+    this.previousInnerHtmlLength = this.elem.innerHTML.length;
+
+    if (autofocus) {
+      // "setTimeout" suggested by https://stackoverflow.com/a/37162116
+      // .focus() on its own doesn't seem to work, but adding .click() does.
+      // Also using .click() on its own also doesn't work
+      setTimeout(() => {
+        this.elem.focus();
+        this.elem.click();
+      }, 0);
+    }
+
+    this.elem.addEventListener("input", event => this.handleInput(event as InputEvent));
+    this.elem.addEventListener('beforeinput', event => this.handleBeforeInput(event as InputEvent));
+  }
+
+  private handleBeforeInput = (event: InputEvent) => {
+    const { inputType } = event;
+
+    if (inputType === "insertParagraph" && this.parentEditorBlock) {
+      event.preventDefault();
+
+      this.parentEditorBlock.createBlock("", true);
+    }
   }
 
   private handleInput = (event: InputEvent) => {
-    const { data, inputType } = event;
+    // If user makes a newline then erases everything,
+    // a stray <br> is left which causes incorrect behavior:
+    if (this.elem.innerHTML === "<br>") {
+      this.elem.innerHTML = "";
+    }
 
-    // Did the user just append characters at the end?
-    if (inputType === "insertText" && data && this.elem.innerText.endsWith(data)) {
+    // Reminder: when inputType="insertFromPaste" or "insertParagraph" then data=null.
+    let { data, inputType } = event;
+
+    const isInputNewLine =
+      inputType === "insertLineBreak" ||
+      (inputType === "insertText" && data === null); // this can happen, but forgot how
+
+    // Setting some flags for use later.
+    const newInnerHtmlLength = this.elem.innerHTML.length;
+    const wereCharactersRemoved = newInnerHtmlLength < this.previousInnerHtmlLength;
+
+    let wereCharactersAppended = false;
+    if (!isInputNewLine && data && inputType === "insertText") {
+      // NOTE "innerText" can have a trailing "\n" if you've ever added paragraphs.
+      wereCharactersAppended = this.elem.innerText.endsWith(data) || this.elem.innerText.endsWith(`${data}\n`);
+    }
+
+    // If the user added text to the end, then we can just ingest that text:
+    if (!wereCharactersRemoved && data && wereCharactersAppended) {
       let newInnerHtml;
 
       for (const c of data) {
-        // If yes, then we ingest just those characters.
-        newInnerHtml = this.ingest(c);
+        newInnerHtml = this.ingest(c, this.previousInputWasNewLine);
       }
 
-      this.setInnerHTML(newInnerHtml);
+      this.setInnerHTMLFromIngest(newInnerHtml);
 
     // Otherwise, start over and bulk ingest everything.
     } else {
-      this.setInnerHTML(this.bulkIngest(this.elem.innerHTML));
+      this.setInnerHTMLFromIngest(this.bulkIngest(this.elem.innerHTML));
     }
+
+    this.previousInputWasNewLine = isInputNewLine;
+    this.previousInnerHtmlLength = newInnerHtmlLength;
   }
 
   // Used to update the innerHTML and there is a chance we may need to move the cursor.
   // Returns "currentHtml !== htmlFromCrusher":
-  private setInnerHTML(htmlFromCrusher = ""): boolean {
+  private setInnerHTMLFromIngest(htmlFromCrusher = ""): boolean {
     // Set it now...
     const currentHtml = this.elem.innerHTML;
 
@@ -85,11 +137,13 @@ export class TextBlock {
         if (longerText[a+b+c] !== shorterText[a+c]) break;
       }
 
+      const maxI = a + c;
+
       const sel = window.getSelection();
 
       if (sel) {
         sel.extend(this.elem, 0);
-        for (let i = 0; i < (a+c); i++) {
+        for (let i = 0; i < maxI; i++) {
           // @ts-expect-error
           sel.modify("move", "forward", "character");
         }
@@ -97,7 +151,6 @@ export class TextBlock {
 
       return true;
     }
-
     return false;
   }
 
@@ -106,7 +159,7 @@ export class TextBlock {
   }
 
   public serialize(): string {
-    return this.text;
+    return this.html;
   }
 }
 

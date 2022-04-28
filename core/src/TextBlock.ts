@@ -151,6 +151,7 @@ export class TextBlock {
 
       return true;
     }
+
     return false;
   }
 

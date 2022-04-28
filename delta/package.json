@@ -1,0 +1,19 @@
+{
+  "name": "@neyar/delta",
+  "version": "0.1.0",
+  "description": "`neyar` delta library",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "compile": "swc src/ -d dist/",
+    "build": "npm run compile && tsc"
+  },
+  "author": "High Output Ventures",
+  "license": "ISC",
+  "dependencies": {
+    "ramda": "^0.28.0"
+  },
+  "devDependencies": {
+    "@types/ramda": "^0.28.11"
+  }
+}

@@ -1,12 +1,18 @@
 import '@testing-library/jest-dom';
-import { EditorBlock } from '../src';
+import { EditorBlock, TextBlock } from '../src';
+
+type Context = {
+  container: HTMLDivElement;
+}
 
 describe('TextBlock', () => {
-  beforeEach(() => {
+  beforeEach(function (this: Context) {
     const div = document.createElement('div');
 
     const editor = new EditorBlock(div);
-    console.log(editor.getHTMLElement().innerHTML);
+    this.container = editor.getHTMLElement() as HTMLDivElement;
+
+    const block = new TextBlock(editor, '');
   });
 
   test('normal text', () => {

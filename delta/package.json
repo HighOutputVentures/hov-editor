@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "compile": "swc src/ -d dist/",
-    "build": "npm run compile && tsc"
+    "build": "npm run compile && tsc",
+    "lint": "eslint src/ __tests__/"
   },
   "author": "High Output Ventures",
   "license": "ISC",

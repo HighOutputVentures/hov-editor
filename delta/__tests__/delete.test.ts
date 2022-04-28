@@ -16,16 +16,16 @@ describe('#delete', () => {
     expect(delta.length).toBe(1);
     expect(delta.get(0)).toEqual({
       type: OperationType.Delete,
-      length
+      length,
     });
-  })
+  });
 
   test('combine with previous Delete', () => {
     const delta = new Delta([
       {
         type: OperationType.Delete,
         length: 10,
-      }
+      },
     ]);
 
     delta.delete(5);
@@ -33,9 +33,9 @@ describe('#delete', () => {
     expect(delta.length).toBe(1);
     expect(delta.get(0)).toEqual({
       type: OperationType.Delete,
-      length: 15
+      length: 15,
     });
-  })
+  });
 
   test('do not combine with previous Insert', () => {
     const length = 5;
@@ -43,7 +43,7 @@ describe('#delete', () => {
     const previousOperation: InsertOperation = {
       type: OperationType.Insert,
       data: 'Hello World!',
-      attributes: { bold: true }
+      attributes: { bold: true },
     };
 
     const delta = new Delta([
@@ -58,7 +58,7 @@ describe('#delete', () => {
       type: OperationType.Delete,
       length,
     });
-  })
+  });
 
   test('do not combine with previous Retain', () => {
     const length = 5;
@@ -80,5 +80,5 @@ describe('#delete', () => {
       type: OperationType.Delete,
       length,
     });
-  })
+  });
 });

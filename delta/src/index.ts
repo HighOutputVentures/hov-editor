@@ -15,17 +15,17 @@ export type InsertOperation = {
   type: OperationType.Insert;
   data: OperationData;
   attributes?: OperationAttributes;
-}
+};
 
 export type DeleteOperation = {
   type: OperationType.Delete;
   length: number;
-}
+};
 
 export type RetainOperation = {
   type: OperationType.Retain;
   length: number;
-}
+};
 
 export type Operation = InsertOperation | DeleteOperation | RetainOperation;
 
@@ -51,7 +51,7 @@ export class Delta {
       && equals(operation.attributes, previous.attributes)) {
       const combination = {
         ...previous,
-        data: previous.data + operation.data
+        data: previous.data + operation.data,
       };
 
       this.operations.pop();
@@ -76,7 +76,7 @@ export class Delta {
     if (previous && previous.type === OperationType.Delete) {
       const combination = {
         ...previous,
-        length: previous.length + operation.length
+        length: previous.length + operation.length,
       };
 
       this.operations.pop();
@@ -101,7 +101,7 @@ export class Delta {
     if (previous && previous.type === OperationType.Retain) {
       const combination = {
         ...previous,
-        length: previous.length + operation.length
+        length: previous.length + operation.length,
       };
 
       this.operations.pop();

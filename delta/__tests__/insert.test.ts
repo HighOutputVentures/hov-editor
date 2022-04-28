@@ -4,7 +4,7 @@ import {
   InsertOperation,
   OperationType,
   RetainOperation,
-} from '../src/';
+} from '../src';
 
 describe('#insert', () => {
   test('first Insert', () => {
@@ -30,8 +30,8 @@ describe('#insert', () => {
       {
         type: OperationType.Insert,
         data: 'Hello',
-        attributes
-      }
+        attributes,
+      },
     ]);
 
     delta.insert(' World!', attributes);
@@ -66,12 +66,12 @@ describe('#insert', () => {
   });
 
   test('do not combile with previous Delete', () => {
-    const data = 'Hello World!'
+    const data = 'Hello World!';
     const attributes = { bold: true };
 
     const previousOperation: DeleteOperation = {
       type: OperationType.Delete,
-      length: 5
+      length: 5,
     };
 
     const delta = new Delta([
@@ -95,7 +95,7 @@ describe('#insert', () => {
 
     const previousOperation: RetainOperation = {
       type: OperationType.Retain,
-      length: 5
+      length: 5,
     };
 
     const delta = new Delta([

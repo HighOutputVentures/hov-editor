@@ -16,16 +16,16 @@ describe('#retain', () => {
     expect(delta.length).toBe(1);
     expect(delta.get(0)).toEqual({
       type: OperationType.Retain,
-      length
+      length,
     });
-  })
+  });
 
   test('combine with previous Retain', () => {
     const delta = new Delta([
       {
         type: OperationType.Retain,
         length: 10,
-      }
+      },
     ]);
 
     delta.retain(5);
@@ -33,9 +33,9 @@ describe('#retain', () => {
     expect(delta.length).toBe(1);
     expect(delta.get(0)).toEqual({
       type: OperationType.Retain,
-      length: 15
+      length: 15,
     });
-  })
+  });
 
   test('do not combine with previous Insert', () => {
     const length = 5;
@@ -43,7 +43,7 @@ describe('#retain', () => {
     const previousOperation: InsertOperation = {
       type: OperationType.Insert,
       data: 'Hello World!',
-      attributes: { bold: true }
+      attributes: { bold: true },
     };
 
     const delta = new Delta([
@@ -58,7 +58,7 @@ describe('#retain', () => {
       type: OperationType.Retain,
       length,
     });
-  })
+  });
 
   test('do not combine with previous Delete', () => {
     const length = 5;
@@ -80,5 +80,5 @@ describe('#retain', () => {
       type: OperationType.Retain,
       length,
     });
-  })
+  });
 });

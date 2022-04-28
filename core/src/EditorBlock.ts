@@ -2,9 +2,10 @@ import { Block } from "./Block";
 import { TextBlock } from "./TextBlock";
 
 export class EditorBlock extends Block {
+  private elem: HTMLDivElement;
   private blocks: Block[] = [];
 
-  constructor(private elem: HTMLDivElement, initialData = "") {
+  constructor(elem: HTMLDivElement, initialData = "") {
     super();
 
     this.elem = elem;

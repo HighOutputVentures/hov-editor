@@ -15,6 +15,7 @@ export class TextBlock {
 
     this.elem.innerHTML = this.bulkIngest(data);
 
+    // TODO Dispatch events instead
     this.parentEditorBlock = parentEditorBlock;
 
     this.previousInnerHtmlLength = this.elem.innerHTML.length;

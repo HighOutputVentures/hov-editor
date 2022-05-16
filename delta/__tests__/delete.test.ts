@@ -1,9 +1,11 @@
 import {
   Delta,
+} from '../src';
+import {
   InsertOperation,
   OperationType,
   RetainOperation,
-} from '../src';
+} from '../src/lib/types';
 
 describe('#delete', () => {
   test('first Delete', () => {

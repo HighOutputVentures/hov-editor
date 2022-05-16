@@ -1,33 +1,9 @@
-import { last, equals, is } from 'ramda';
-
-export enum OperationType {
-  Insert,
-  Delete,
-  Retain,
-  Format,
-}
-
-export type OperationData = string | { image: string };
-
-export type OperationAttributes = { bold?: boolean, italic?: boolean, code?: boolean };
-
-export type InsertOperation = {
-  type: OperationType.Insert;
-  data: OperationData;
-  attributes?: OperationAttributes;
-};
-
-export type DeleteOperation = {
-  type: OperationType.Delete;
-  length: number;
-};
-
-export type RetainOperation = {
-  type: OperationType.Retain;
-  length: number;
-};
-
-export type Operation = InsertOperation | DeleteOperation | RetainOperation;
+import {
+  last, equals, is, clone, range,
+} from 'ramda';
+import {
+  Operation, OperationAttributes, OperationData, OperationType,
+} from './lib/types';
 
 export class Delta {
   private operations: Readonly<Operation>[] = [];
@@ -113,6 +89,20 @@ export class Delta {
     this.operations.push(operation);
 
     return this;
+  }
+
+  public compose(delta: Delta): Delta {
+    const operations = clone(this.operations);
+
+    range(0, delta.length).forEach((index) => {
+      const operation = delta.get(index);
+
+      if (operation.type === OperationType.Insert) {
+        operations.push(operation);
+      }
+    });
+
+    return new Delta(operations);
   }
 
   public get length() {

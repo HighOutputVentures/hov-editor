@@ -1,6 +1,6 @@
 export enum BlockEvent {
   Drop = 'DROP',
-  Exit = 'EXIT'
+  Exit = 'EXIT',
 }
 
 export abstract class Block extends EventTarget {

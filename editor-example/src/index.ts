@@ -6,5 +6,5 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const elem = document.querySelector('#editor');
 
-  new EditorBlock(elem, data)
+  new EditorBlock(elem, data);
 });

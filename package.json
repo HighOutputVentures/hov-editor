@@ -10,7 +10,14 @@
     "core",
     "delta",
     "text-example",
-    "editor-example"
+    "editor-example",
+    "packages/core",
+    "packages/root-block",
+    "packages/text-block",
+    "packages/header-block",
+    "packages/bullet-list-item-block",
+    "packages/numbered-list-item-block",
+    "packages/todo-list-item-block"
   ],
   "author": "High Output Ventures",
   "license": "ISC",

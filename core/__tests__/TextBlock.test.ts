@@ -3,7 +3,7 @@ import { EditorBlock, TextBlock } from '../src';
 
 type Context = {
   container: HTMLDivElement;
-}
+};
 
 describe('TextBlock', () => {
   beforeEach(function (this: Context) {
@@ -17,5 +17,5 @@ describe('TextBlock', () => {
 
   test('normal text', () => {
     expect(true);
-  })
+  });
 });
